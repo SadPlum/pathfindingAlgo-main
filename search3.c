@@ -4,8 +4,8 @@
 // declerations
 
     int grid[10][10] = {
-        {0,0,0,3,0,0,0,0,0,0},
-        {0,0,0,3,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0},
         {0,3,0,3,3,3,3,0,0,0},
         {0,3,0,0,0,0,0,0,0,0},
         {0,3,3,3,3,3,3,3,3,3},
@@ -27,6 +27,8 @@
     int tempCounter = 0;
     int pathIndex = 0;
     bool pathFound = false;
+    int totalLength;
+    int pathArray[100][2] = {};
 
 
 
@@ -129,41 +131,92 @@ int establishRecur() {
     // }
 
     // int path* = direction();
-    int totalLength = tempCounter+1;
-    int pathArray[100][2]={};
+    totalLength = tempCounter;
+    
+    printf("START Y: %d, X: %d\n", start[0], start[1]);
+    printf("End Y: %d, X: %d\n", end[0], end[1]);
+    printf("Path Index: %d\n", pathIndex);
+    printf("Total Length: %d\n", totalLength);
 
-    int * array= recurse(start[0], start[1], pathIndex, totalLength, pathArray, pathFound);
+    recurse(start[0], start[1], pathIndex);
 
     for(int i=0; i<totalLength; i++) {
-        printf("%d, %d\n", array[i][0], array[i][1]);
+        printf("%d, %d, I: %d\n", pathArray[i][0], pathArray[i][1], i);
     }
 
+    for(int i=0; i<totalLength; i++) {
+        int y = pathArray[i][0];
+        int x = pathArray[i][1];
+        safeGrid[y][x] = 5;
+    }
+
+        printf("\ngrid:");
+
+            for(int i=0; i<10; i++) {
+                printf("\n");
+
+                for(int j=0; j<10; j++) { 
+                    if(safeGrid[i][j] == 1) {
+                        printf("S ");
+                    }
+                      if(safeGrid[i][j] == 2) {
+                        printf("o ");
+                    }
+                          if(safeGrid[i][j] == 3) {
+                        printf("X ");
+                    }
+                      if(safeGrid[i][j] == 4) {
+                        printf("E ");
+                    }
+                        if(safeGrid[i][j] == 5) {
+                            printf("* ");
+                        }
+                      if(safeGrid[i][j] == 0) {
+                        printf("  ");
+                    }
+                }
+            }
+    printf("\n\nend\n");
 };
 
 
-int * recurse(int y, int x, int pathIndex, int length, int path[100][2], bool pathFound) {
+int recurse(int y, int x, int index) {
+
     int indexes[4][2] = {{y, x-1}, {y-1, x}, {y+1, x}, {y, x+1}};
     for(int i = 0; i < 4; i++) {
-        if(pathIndex > length) {
-            return 0;
-        }
-        int newY = indexes[i][0];
-        int newX = indexes[i][1];
-        if(outOfBounds(newY, newX) == true) {
-            continue;
-        }
-        if(newY == end[0]) {
-            if(newX == end[1]) {
-                return path;
+        if(pathFound == false) {
+            int newY = indexes[i][0];
+            int newX = indexes[i][1];
+       
+            if(index > totalLength) {
+                return;
             }
+        
+            if(outOfBounds(newY, newX) == true) {
+                continue;
+            }
+            
+            if(newY == end[0]) {
+                if(newX == end[1]) {
+                    printf("Found\n");
+                    printf("Y: %d, X: %d\n", newY, newX);
+                    pathFound = true;
+                    return ;
+                }
+            }
+       
+            if(onPath(grid[newY][newX]) == false){
+               continue;
+            }
+                if(pathFound == true) {
+                    return;}
+                pathArray[index][0] = newY;
+                pathArray[index][1] = newX;
+               
+                recurse(newY, newX, index+1);
         }
-        path[pathIndex][0] = newY;
-        path[pathIndex][1] = newX;
-        pathIndex++;
-        recurse(newY, newX, pathIndex, length, path[100][2], pathFound);
-
     }
-    return;
+   
 };
 
 
@@ -225,7 +278,7 @@ int main() {
 
     // SET END
 
-    grid[0][0] = 4;
+    grid[7][7] = 4;
 
 
     // SEARCH ALGO
