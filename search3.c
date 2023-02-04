@@ -3,6 +3,8 @@
 
 // declerations
 
+    // 0 = empty space, 1 = start, 2 = searched, 3 = walls, 4 = end, 5 = path
+
     int grid[10][10] = {
         {0,0,0,0,3,0,0,0,0,0},
         {0,3,3,0,3,0,0,0,0,0},
@@ -15,21 +17,31 @@
         {0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0},
         } ;
+
+    // Copy of grid to be manipulated after end has been found.
     int safeGrid [10][10] ={};
     bool found = false;
+    // used to determine farthestArray length;
     int farthestTotal=0;
     int farthestArray[10][2] = {};
+    
+    // During search process, takes the farthestArray from previous iteration and makes into old array
     int oldTotal=1;
     int oldArray[10][2] = {};
+
+    //  declare start and end. Currently set within main function
     int start[2];
     int end[2];
-    int tempCounter = 0;
+
+    // Tracks how many space need to be search when finding path
+    int searchCounter = 0;
+    
     int pathIndex = 0;
+    // boolean value to see if path is found
     bool pathFound = false;
+    // Determines length of path. Return during recursion if the searched path exceeds length.
     int totalLength;
     int pathArray[100][2] = {};
-
-
 
 
 
@@ -50,6 +62,8 @@ bool onPath(int next) {
     }
     return false;
 }
+
+
 
 void printGrid(int grid[10][10]) {
         printf("\ngrid:");
@@ -120,9 +134,8 @@ int grow(int currentY,int currentX) {
     return 0;
 };
 
-
+// Loops over the elements within the oldArray (farthestArray from previous iteration)
 int expand() {
-    
     for(int i = 0; i < oldTotal; i++) {
         if(found == true) {
             return 0;
@@ -134,10 +147,11 @@ int expand() {
     return 0;
 }
 
+// Main searching function. Limited to avoid infinite loop.
 int search(int startY, int startX) {
-    while(tempCounter < 100) {
+    while(searchCounter < 100) {
         // For first loop
-        if(tempCounter == 0) {
+        if(searchCounter == 0) {
             start[0] = startY;
             start[1] = startX;
             oldArray[0][0] = startY;
@@ -146,9 +160,9 @@ int search(int startY, int startX) {
             if(found == true) {
                 return 0;
             }
-            tempCounter++;
+            searchCounter++;
         }
-        // For recond loops
+        // For following loops, takes farthestArray and farthestTotal and converts to oldArray and oldTotal
         else {
             oldTotal = farthestTotal;
         for(int i = 0; i < farthestTotal; i++) {
@@ -160,7 +174,7 @@ int search(int startY, int startX) {
         if(found == true) {
             return 0;
         }
-        tempCounter++;
+        searchCounter++;
         }
     }
     return 0;
@@ -170,15 +184,11 @@ int search(int startY, int startX) {
 int establishRecur() {
 
     // Establish safe copy of grid 
-
-  
     for(int i =0; i< 10; i++) {
         for (int j =0; j< 10; j++) {
             safeGrid[i][j] = grid[i][j];
         }
     };
-
-    // Declare path array
 
 
    
@@ -210,40 +220,36 @@ int establishRecur() {
 
     // int path* = direction();
 
-    // Set the total length;
 
-    totalLength = tempCounter;
+
+    // Set the total length;
+    totalLength = searchCounter;
     
-    printf("START Y: %d, X: %d\n", start[0], start[1]);
-    printf("End Y: %d, X: %d\n", end[0], end[1]);
-    printf("Total Length: %d\n", totalLength);
 
     // START RECURSION
 
     recurse(start[0], start[1], pathIndex);
 
-    for(int i=0; i<totalLength; i++) {
-        printf("%d, %d, I: %d\n", pathArray[i][0], pathArray[i][1], i);
-    }
+    // Add path to grid (safeGrid) and the print
 
     for(int i=0; i<totalLength; i++) {
         int y = pathArray[i][0];
         int x = pathArray[i][1];
         safeGrid[y][x] = 5;
     }
-
     printGrid(safeGrid);
 };
 
 
+// Main recursive function to find path. 
 int recurse(int y, int x, int index) {
-
     int indexes[4][2] = {{y, x-1}, {y-1, x}, {y+1, x}, {y, x+1}};
     for(int i = 0; i < 4; i++) {
         if(pathFound == false) {
             int newY = indexes[i][0];
             int newX = indexes[i][1];
-       
+
+            // Returns if searched beyond the distance the end is from the start
             if(index > totalLength) {
                 return;
             }
@@ -252,6 +258,7 @@ int recurse(int y, int x, int index) {
                 continue;
             }
             
+            // If end is found, return;
             if(newY == end[0]) {
                 if(newX == end[1]) {
                     printf("Found\n");
@@ -260,16 +267,21 @@ int recurse(int y, int x, int index) {
                     return ;
                 }
             }
-       
+
+            // Checks if the value is a 2 (valid area to search)
             if(onPath(grid[newY][newX]) == false){
                continue;
             }
-                if(pathFound == true) {
-                    return;}
-                pathArray[index][0] = newY;
-                pathArray[index][1] = newX;
-               
-                recurse(newY, newX, index+1);
+
+            if(pathFound == true) {
+                return;
+            }
+
+
+            // Establishes path array and recurses
+            pathArray[index][0] = newY;
+            pathArray[index][1] = newX;   
+            recurse(newY, newX, index+1);
         }
     }
    
@@ -293,7 +305,7 @@ int main() {
 
     grid[0][0] = 4;
 
- printGrid(grid);
+    printGrid(grid);
 
 
     // SEARCH ALGO
