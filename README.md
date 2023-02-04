@@ -3,6 +3,8 @@
 ## How it was built.
 I wanted to challenge myself and learn about how lower-level concepts such as pointers, arrays and memory works. I decided I wanted to build a pathfinding algorithm. I established that I wanted to program to know where the starting point was, but was unaware of the end. The grid is a 10x10 array, using numbers to dictate whats the end, wall, etc.
 
+Each of the files shows the evolution of how it started, to where it is. Search3 is the working version.
+
 ```
 0 = searchable area
 1 = start
